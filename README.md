@@ -1,4 +1,5 @@
 cordovaHTTP
+With PostJSON, PUT and DELETE methods.
 ==================
 
 Cordova / Phonegap plugin for communicating with HTTP servers.  Supports iOS and Android. This version of the plugin has two types of POST, one which send Json payloads. It also has PUT and DELETE methods.
