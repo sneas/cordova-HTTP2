@@ -41,12 +41,21 @@ public abstract class CordovaHttp {
 
     private String urlString;
     private Map<?, ?> params;
+    private JSONObject jsonObject;
     private Map<String, String> headers;
     private CallbackContext callbackContext;
-    
+
+
     public CordovaHttp(String urlString, Map<?, ?> params, Map<String, String> headers, CallbackContext callbackContext) {
         this.urlString = urlString;
         this.params = params;
+        this.headers = headers;
+        this.callbackContext = callbackContext;
+    }
+
+    public CordovaHttp(String urlString, JSONObject jsonObject, Map<String, String> headers, CallbackContext callbackContext) {
+        this.urlString = urlString;
+        this.jsonObject = jsonObject;
         this.headers = headers;
         this.callbackContext = callbackContext;
     }
@@ -110,7 +119,7 @@ public abstract class CordovaHttp {
     }
     
     protected void respondWithError(String msg) {
-        this.respondWithError(500, msg);
+        this.respondWithError(526, msg);
     }
 
     protected void addResponseHeaders(HttpRequest request, JSONObject response) throws JSONException {
@@ -124,5 +133,13 @@ public abstract class CordovaHttp {
             }
         }
         response.put("headers", new JSONObject(parsed_headers));
+    }
+
+    public JSONObject getJsonObject() {
+        return jsonObject;
+    }
+
+    public void setJsonObject(JSONObject jsonObject) {
+        this.jsonObject = jsonObject;
     }
 }
