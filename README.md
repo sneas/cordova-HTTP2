@@ -128,9 +128,9 @@ Most apis will return JSON meaning you'll want to parse the data like in the exa
 ### postJson<a name="postJson"></a>
 Execute a POST request.  Takes a URL, parameters, and headers. See the [post](#post) documentation for details on what is returned on success and failure.
 
-cordovaHttp.postJson(endpoint, data , header,success,failure, function (response) {
-}, function (err) {
-});
+    cordovaHttp.postJson(endpoint, data , header,success,failure, function (response) {
+    }, function (err) {
+    });
     
 #### failure
 The error function receives a response object with 3 properties: status, error and headers.  Status is the HTTP response code.  Error is the error response from the server as a string.  Headers is an object with the headers.  Here's a quick example:
@@ -158,16 +158,16 @@ Execute a GET request.  Takes a URL, parameters, and headers.  See the [post](#p
 ### put
 Execute a PUT request.  Takes a URL, data, and headers.  See the [post](#post) documentation for details on what is returned on success and failure.
 
-cordovaHttp.put(endpoint, data , header,success,failure, function (response) {
-}, function (err) {
-});
+    cordovaHttp.put(endpoint, data , header,success,failure, function (response) {
+    }, function (err) {
+    });
 
 ### delete
 Execute a GET request.  Takes a URL, data, and headers.  See the [post](#post) documentation for details on what is returned on success and failure.
 
-cordovaHttp.postJson(endpoint, data , header,success,failure, function (response) {
-}, function (err) {
-});
+    cordovaHttp.postJson(endpoint, data , header,success,failure, function (response) {
+    }, function (err) {
+    });
     
 ### uploadFile
 Uploads a file saved on the device.  Takes a URL, parameters, headers, filePath, and the name of the parameter to pass the file along as.  See the [post](#post) documentation for details on what is returned on success and failure.
