@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.1
+
+- Added in plugin.xml CordovaHttpPostJson, CordovaHttpDelete, CordovaHttpPut for build correction.
+- Change of cordovaHTTP.js for correction of 'cordovaHTTP' undefined.
+
 ## v1.2.0
 
 - Added support for TLSv1.1 and TLSv1.2 for android versions 4.1-4.4 (API levels 16-19)
