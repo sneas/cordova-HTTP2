@@ -113,10 +113,10 @@ var http = {
 module.exports = http;
 
 if (typeof angular !== "undefined") {
-    angular.module('cordovaHTTP', []).factory('cordovaHTTP', function($timeout, $q) {
+    angular.module('cordovaHTTP2', []).factory('cordovaHTTP2', function($timeout, $q) {
         function makePromise(fn, args, async) {
             var deferred = $q.defer();
-            
+
             var success = function(response) {
                 if (async) {
                     $timeout(function() {
@@ -126,7 +126,7 @@ if (typeof angular !== "undefined") {
                     deferred.resolve(response);
                 }
             };
-            
+
             var fail = function(response) {
                 if (async) {
                     $timeout(function() {
@@ -136,16 +136,16 @@ if (typeof angular !== "undefined") {
                     deferred.reject(response);
                 }
             };
-            
+
             args.push(success);
             args.push(fail);
-            
+
             fn.apply(http, args);
-            
+
             return deferred.promise;
         }
-        
-        var cordovaHTTP = {
+
+        var cordovaHTTP2 = {
             getBasicAuthHeader: http.getBasicAuthHeader,
             useBasicAuth: function(username, password) {
                 return http.useBasicAuth(username, password);
@@ -187,9 +187,9 @@ if (typeof angular !== "undefined") {
                 return makePromise(http.downloadFile, [url, params, headers, filePath], true);
             }
         };
-        return cordovaHTTP;
+        return cordovaHTTP2;
     });
 }
 
-window.cordovaHTTP = http;
+window.cordovaHTTP2 = http;
 

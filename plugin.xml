@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
   xmlns:android="http://schemas.android.com/apk/res/android"
-  id="cordova-plugin-http"
-  version="1.2.1">
+  id="cordova-plugin-http2"
+  version="1.0.0">
 
     <name>SSL Pinning</name>
- 
+
     <description>
         Cordova / Phonegap plugin for communicating with HTTP servers using SSL pinning
 	</description>
@@ -16,7 +16,7 @@
 
     <dependency id="cordova-plugin-file" version=">=2.0.0" />
 
-    <js-module src="www/cordovaHTTP.js" name="CordovaHttpPlugin">
+    <js-module src="www/cordovaHTTP2.js" name="CordovaHttpPlugin">
         <clobbers target="CordovaHttpPlugin" />
     </js-module>
 
@@ -30,7 +30,7 @@
 
         <header-file src="src/ios/CordovaHttpPlugin.h" />
         <source-file src="src/ios/CordovaHttpPlugin.m" />
-        
+
         <header-file src="src/ios/TextResponseSerializer.h" />
         <source-file src="src/ios/TextResponseSerializer.m" />
 
@@ -69,7 +69,7 @@
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET" />
         </config-file>
-        
+
         <source-file src="src/android/com/synconset/CordovaHTTP/CordovaHttp.java" target-dir="src/com/synconset" />
         <source-file src="src/android/com/synconset/CordovaHTTP/CordovaHttpGet.java" target-dir="src/com/synconset" />
         <source-file src="src/android/com/synconset/CordovaHTTP/CordovaHttpPost.java" target-dir="src/com/synconset" />
