@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-http2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cordova / Phonegap plugin for communicating with HTTP servers using SSL pinning",
   "cordova": {
     "id": "cordova-plugin-http2",
@@ -26,7 +26,7 @@
       "version": ">=3.0.0"
     }
   ],
-  "author": "Wymsee",
+  "author": "Dima Snisarenko",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/sneas/cordova-HTTP2/issues"

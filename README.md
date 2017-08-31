@@ -1,4 +1,4 @@
-cordovaHTTP With PostJSON, PUT and DELETE methods.
+cordovaHTTP With postJSON, PUT and DELETE methods.
 ==================
 
 Cordova / Phonegap plugin for communicating with HTTP servers.  Supports iOS and Android. This version of the plugin has two types of POST, one which send Json payloads. It also has PUT and DELETE methods.
@@ -17,23 +17,23 @@ Please check [CHANGELOG.md](CHANGELOG.md) for details about updating to a new ve
 The plugin conforms to the Cordova plugin specification, it can be installed
 using the Cordova / Phonegap command line interface.
 
-    phonegap plugin add cordova-plugin-http
+    phonegap plugin add cordova-plugin-http2
 
-    cordova plugin add cordova-plugin-http
+    cordova plugin add cordova-plugin-http2
 
 ## Usage
 
 ### AngularJS
 
-This plugin creates a cordovaHTTP service inside of a cordovaHTTP module.  You must load the module when you create your app's module.
+This plugin creates a cordovaHTTP2 service inside of a cordovaHTTP2 module.  You must load the module when you create your app's module.
 
-    var app = angular.module('myApp', ['ngRoute', 'ngAnimate', 'cordovaHTTP']);
+    var app = angular.module('myApp', ['ngRoute', 'ngAnimate', 'cordovaHTTP2']);
     
-You can then inject the cordovaHTTP service into your controllers.  The functions can then be used identically to the examples shown below except that instead of accepting success and failure callback functions, each function returns a promise.  For more information on promises in AngularJS read the [AngularJS docs](http://docs.angularjs.org/api/ng/service/$q).  For more info on promises in general check out this article on [html5rocks](http://www.html5rocks.com/en/tutorials/es6/promises/).  Make sure that you load cordova.js or phonegap.js after AngularJS is loaded.
+You can then inject the cordovaHTTP2 service into your controllers.  The functions can then be used identically to the examples shown below except that instead of accepting success and failure callback functions, each function returns a promise.  For more information on promises in AngularJS read the [AngularJS docs](http://docs.angularjs.org/api/ng/service/$q).  For more info on promises in general check out this article on [html5rocks](http://www.html5rocks.com/en/tutorials/es6/promises/).  Make sure that you load cordova.js or phonegap.js after AngularJS is loaded.
 
 ### Not AngularJS
 
-This plugin registers a `cordovaHTTP` global on window
+This plugin registers a `cordovaHTTP2` global on window
 
 
 ## Sync Functions
@@ -41,17 +41,17 @@ This plugin registers a `cordovaHTTP` global on window
 ### getBasicAuthHeader
 This returns an object representing a basic HTTP Authorization header of the form `{'Authorization': 'Basic base64encodedusernameandpassword'}`
 
-    var header = cordovaHTTP.getBasicAuthHeader("user", "password");
+    var header = cordovaHTTP2.getBasicAuthHeader("user", "password");
 
 ### useBasicAuth
 This sets up all future requests to use Basic HTTP authentication with the given username and password.
 
-    cordovaHTTP.useBasicAuth("user", "password");
+    cordovaHTTP2.useBasicAuth("user", "password");
     
 ### setHeader
 Set a header for all future requests.  Takes a header and a value.
 
-    cordovaHTTP.setHeader("Header", "Value");
+    cordovaHTTP2.setHeader("Header", "Value");
     
 
 ## Async Functions
@@ -64,7 +64,7 @@ To use SSL pinning you must include at least one .cer SSL certificate in your ap
 
 As an alternative, you can store your .cer files in the www/certificates folder.
 
-    cordovaHTTP.enableSSLPinning(true, function() {
+    cordovaHTTP2.enableSSLPinning(true, function() {
         console.log('success!');
     }, function() {
         console.log('error :(');
@@ -73,7 +73,7 @@ As an alternative, you can store your .cer files in the www/certificates folder.
 ### acceptAllCerts
 Accept all SSL certificates.  Or disable accepting all certificates.  This defaults to false.
 
-    cordovaHTTP.acceptAllCerts(true, function() {
+    cordovaHTTP2.acceptAllCerts(true, function() {
         console.log('success!');
     }, function() {
         console.log('error :(');
@@ -82,7 +82,7 @@ Accept all SSL certificates.  Or disable accepting all certificates.  This defau
 ### validateDomainName
 Whether or not to validate the domain name in the certificate.  This defaults to true.
 
-    cordovaHTTP.validateDomainName(false, function() {
+    cordovaHTTP2.validateDomainName(false, function() {
         console.log('success!');
     }, function() {
         console.log('error :(');
@@ -104,7 +104,7 @@ The success function receives a response object with 3 properties: status, data,
     
 Most apis will return JSON meaning you'll want to parse the data like in the example below:
 
-    cordovaHTTP.post("https://google.com/", {
+    cordovaHTTP2.post("https://google.com/", {
         id: 12,
         message: "test"
     }, { Authorization: "OAuth2: token" }, function(response) {
@@ -128,7 +128,7 @@ Most apis will return JSON meaning you'll want to parse the data like in the exa
 ### postJson<a name="postJson"></a>
 Execute a POST request.  Takes a URL, parameters, and headers. See the [post](#post) documentation for details on what is returned on success and failure.
 
-    cordovaHttp.postJson(endpoint, data , header,success,failure, function (response) {
+    cordovaHTTP2.postJson(endpoint, data , header,success,failure, function (response) {
     }, function (err) {
     });
     
@@ -146,7 +146,7 @@ The error function receives a response object with 3 properties: status, error a
 ### get
 Execute a GET request.  Takes a URL, parameters, and headers.  See the [post](#post) documentation for details on what is returned on success and failure.
 
-    cordovaHTTP.get("https://google.com/", {
+    cordovaHTTP2.get("https://google.com/", {
         id: 12,
         message: "test"
     }, { Authorization: "OAuth2: token" }, function(response) {
@@ -158,21 +158,21 @@ Execute a GET request.  Takes a URL, parameters, and headers.  See the [post](#p
 ### put
 Execute a PUT request.  Takes a URL, data, and headers.  See the [post](#post) documentation for details on what is returned on success and failure.
 
-    cordovaHttp.put(endpoint, data , header,success,failure, function (response) {
+    cordovaHTTP2.put(endpoint, data , header,success,failure, function (response) {
     }, function (err) {
     });
 
 ### delete
 Execute a GET request.  Takes a URL, data, and headers.  See the [post](#post) documentation for details on what is returned on success and failure.
 
-    cordovaHttp.postJson(endpoint, data , header,success,failure, function (response) {
+    cordovaHTTP2.postJson(endpoint, data , header,success,failure, function (response) {
     }, function (err) {
     });
     
 ### uploadFile
 Uploads a file saved on the device.  Takes a URL, parameters, headers, filePath, and the name of the parameter to pass the file along as.  See the [post](#post) documentation for details on what is returned on success and failure.
 
-    cordovaHTTP.uploadFile("https://google.com/", {
+    cordovaHTTP2.uploadFile("https://google.com/", {
         id: 12,
         message: "test"
     }, { Authorization: "OAuth2: token" }, "file:///somepicture.jpg", "picture", function(response) {
@@ -184,7 +184,7 @@ Uploads a file saved on the device.  Takes a URL, parameters, headers, filePath,
 ### downloadFile
 Downloads a file and saves it to the device.  Takes a URL, parameters, headers, and a filePath.  See [post](#post) documentation for details on what is returned on failure.  On success this function returns a cordova [FileEntry object](http://cordova.apache.org/docs/en/3.3.0/cordova_file_file.md.html#FileEntry).
 
-    cordovaHTTP.downloadFile("https://google.com/", {
+    cordovaHTTP2.downloadFile("https://google.com/", {
         id: 12,
         message: "test"
     }, { Authorization: "OAuth2: token" }, "file:///somepicture.jpg", function(entry) {
@@ -217,7 +217,7 @@ Take this into account when using this plugin in your application.
 
 The MIT License
 
-Copyright (c) 2014 Wymsee, Inc
+Copyright (c) 2017 Dima Snisarenko
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
