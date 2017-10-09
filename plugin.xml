@@ -58,6 +58,11 @@
         <framework src="SystemConfiguration.framework" />
     </platform>
 
+    <platform name="browser">
+        <js-module src="src/browser/CordovaHttpPlugin.js" name="CordovaHttpPlugin">
+        </js-module>
+    </platform>
+
     <!--android -->
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">

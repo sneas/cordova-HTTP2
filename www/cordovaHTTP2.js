@@ -34,6 +34,12 @@ var http = {
     useBasicAuth: function(username, password) {
         this.headers.Authorization = 'Basic ' + b64EncodeUnicode(username + ':' + password);
     },
+    setX509AuthClientCredentials: function(pkcs10Container, password, success, failure){
+        return exec(success, failure, "CordovaHttpPlugin", "setX509AuthClientCredentials", [pkcs10Container, password]);
+    },
+    resetX509AuthClientCredentials: function(success, failure){
+        return exec(success, failure, "CordovaHttpPlugin", "resetX509AuthClientCredentials", []);
+    },
     setHeader: function(header, value) {
         this.headers[header] = value;
     },
@@ -149,6 +155,12 @@ if (typeof angular !== "undefined") {
             getBasicAuthHeader: http.getBasicAuthHeader,
             useBasicAuth: function(username, password) {
                 return http.useBasicAuth(username, password);
+            },
+            setX509AuthClientCredentials: function(pkcs10Container, password){
+                return makePromise(http.setX509AuthClientCredentials, [pkcs10Container, password]);
+            },
+            resetX509AuthClientCredentials: function(){
+                return  makePromise(http.resetX509AuthClientCredentials, []);
             },
             setHeader: function(header, value) {
                 return http.setHeader(header, value);
