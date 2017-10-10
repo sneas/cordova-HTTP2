@@ -60,6 +60,7 @@
 
     <platform name="browser">
         <js-module src="src/browser/CordovaHttpPlugin.js" name="CordovaHttpPlugin">
+            <runs/>
         </js-module>
     </platform>
 
