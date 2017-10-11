@@ -30,14 +30,15 @@ import java.util.Iterator;
 import android.util.Log;
 
 import com.github.kevinsawicki.http.HttpRequest;
- 
+
 public abstract class CordovaHttp {
     protected static final String TAG = "CordovaHTTP";
     protected static final String CHARSET = "UTF-8";
-    
+
     private static AtomicBoolean sslPinning = new AtomicBoolean(false);
     private static AtomicBoolean acceptAllCerts = new AtomicBoolean(false);
     private static AtomicBoolean validateDomainName = new AtomicBoolean(true);
+    private static AtomicBoolean X509_CLIENT_AUTHENTICATION = new AtomicBoolean(false);
 
     private String urlString;
     private Map<?, ?> params;
@@ -59,14 +60,18 @@ public abstract class CordovaHttp {
         this.headers = headers;
         this.callbackContext = callbackContext;
     }
-    
+
     public static void enableSSLPinning(boolean enable) {
         sslPinning.set(enable);
         if (enable) {
             acceptAllCerts.set(false);
         }
     }
-    
+
+    public static void setX509ClientAuthentication(boolean enable){
+        X509_CLIENT_AUTHENTICATION.set(enable);
+    }
+
     public static void acceptAllCerts(boolean accept) {
         acceptAllCerts.set(accept);
         if (accept) {
@@ -81,19 +86,19 @@ public abstract class CordovaHttp {
     protected String getUrlString() {
         return this.urlString;
     }
-    
+
     protected Map<?, ?> getParams() {
         return this.params;
     }
-    
+
     protected Map<String, String> getHeaders() {
         return this.headers;
     }
-    
+
     protected CallbackContext getCallbackContext() {
         return this.callbackContext;
     }
-    
+
     protected HttpRequest setupSecurity(HttpRequest request) {
         if (acceptAllCerts.get()) {
             request.trustAllCerts();
@@ -104,9 +109,12 @@ public abstract class CordovaHttp {
         if (sslPinning.get()) {
             request.pinToCerts();
         }
+        if(X509_CLIENT_AUTHENTICATION.get()){
+            request.authenticateWithX509Certificate();
+        }
         return request;
     }
-    
+
     protected void respondWithError(int status, String msg) {
         try {
             JSONObject response = new JSONObject();
@@ -117,7 +125,7 @@ public abstract class CordovaHttp {
             this.callbackContext.error(msg);
         }
     }
-    
+
     protected void respondWithError(String msg) {
         this.respondWithError(526, msg);
     }

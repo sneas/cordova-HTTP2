@@ -79,7 +79,13 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             HashMap<String, String> headersMap = this.getStringMapFromJSONObject(headers);
             CordovaHttpDelete delete = new CordovaHttpDelete(urlString, paramsMap, headersMap, callbackContext);
             cordova.getThreadPool().execute(delete);
-        }else if (action.equals("enableSSLPinning")) {
+        } else if(action.equals("setX509AuthClientCredentials")){
+            byte[] pkcs12Container = args.getArrayBuffer(0);
+            String password = args.getString(1);
+            this.setUpX509Authentication(pkcs12Container, password);
+        } else if(action.equals("resetX509AuthClientCredentials")) {
+            this.resetX509Authentication();
+        } else if (action.equals("enableSSLPinning")) {
             try {
                 boolean enable = args.getBoolean(0);
                 this.enableSSLPinning(enable);
@@ -133,6 +139,15 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             return false;
         }
         return true;
+    }
+
+    private void setUpX509Authentication(byte[] pkcs12Container, String password){
+        HttpRequest.setX509ClientAuthentication(pkcs12Container, String password);
+        CordovaHttp.setX509ClientAuthentication(true);
+    }
+    private void resetX509Authentication(){
+        HttpRequest.setX509ClientAuthentication(null,null);
+        CordovaHttp.setX509ClientAuthentication(false);
     }
 
     private void enableSSLPinning(boolean enable) throws GeneralSecurityException, IOException {
