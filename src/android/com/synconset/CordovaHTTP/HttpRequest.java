@@ -464,7 +464,7 @@ public class HttpRequest {
       }
   }
 
-    private static KeyStore getKeyStoreForPinnedCertificates() {
+    private static KeyStore getKeyStoreForPinnedCertificates() throws GeneralSecurityException, IOException{
 
         String keyStoreType = KeyStore.getDefaultType();
         KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -476,8 +476,8 @@ public class HttpRequest {
         return keyStore;
     }
 
-    public static void setX509ClientAuthentication(byte[] pkcs12Container, String password){
-        KeyManagerFactory kmf=null
+    public static void setX509ClientAuthentication(byte[] pkcs12Container, String password) throws GeneralSecurityException, IOException{
+        KeyManagerFactory kmf=null;
         if(pkcs12Container != null){
             KeyStore keystore = KeyStore.getInstance("PKCS12");
             ByteArrayInputStream bis = new ByteArrayInputStream(pkcs12Container);
@@ -3315,11 +3315,12 @@ public class HttpRequest {
   public HttpRequest authenticateWithX509Certificate(){
       final HttpURLConnection connection = getConnection();
       if(connection instanceof HttpsURLConnection){
-          ((HttpsURLConnection)connection).setSSLSocketFactory(getPinnedFactory()));
+          ((HttpsURLConnection)connection).setSSLSocketFactory(getPinnedFactory());
       }else{
           IOException e = new IOException("You must use a https url to Authenticate with an X509 Certificate");
           throw new HttpRequestException(e);
       }
+      return this;
   }
 
   /**

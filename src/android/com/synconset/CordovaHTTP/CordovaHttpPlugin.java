@@ -27,6 +27,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.CordovaArgs;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,7 +47,7 @@ public class CordovaHttpPlugin extends CordovaPlugin {
     }
 
     @Override
-    public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    public boolean execute(String action, final CordovaArgs args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("get")) {
             String urlString = args.getString(0);
             JSONObject params = args.getJSONObject(1);
@@ -80,11 +81,21 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             CordovaHttpDelete delete = new CordovaHttpDelete(urlString, paramsMap, headersMap, callbackContext);
             cordova.getThreadPool().execute(delete);
         } else if(action.equals("setX509AuthClientCredentials")){
+            try{
             byte[] pkcs12Container = args.getArrayBuffer(0);
             String password = args.getString(1);
             this.setUpX509Authentication(pkcs12Container, password);
+            }catch(Exception e){
+                e.printStackTrace();
+                callbackContext.error("X509 Client Authentication setup failed!");
+            }
         } else if(action.equals("resetX509AuthClientCredentials")) {
+            try{
             this.resetX509Authentication();
+            }catch(Exception e){
+                e.printStackTrace();
+                callbackContext.error("X509 Client Authentication reset failed!");
+            }
         } else if (action.equals("enableSSLPinning")) {
             try {
                 boolean enable = args.getBoolean(0);
@@ -141,11 +152,11 @@ public class CordovaHttpPlugin extends CordovaPlugin {
         return true;
     }
 
-    private void setUpX509Authentication(byte[] pkcs12Container, String password){
-        HttpRequest.setX509ClientAuthentication(pkcs12Container, String password);
+    private void setUpX509Authentication(byte[] pkcs12Container, String password)throws GeneralSecurityException, IOException {
+        HttpRequest.setX509ClientAuthentication(pkcs12Container,  password);
         CordovaHttp.setX509ClientAuthentication(true);
     }
-    private void resetX509Authentication(){
+    private void resetX509Authentication() throws GeneralSecurityException, IOException{
         HttpRequest.setX509ClientAuthentication(null,null);
         CordovaHttp.setX509ClientAuthentication(false);
     }
