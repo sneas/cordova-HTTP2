@@ -469,34 +469,51 @@ public class HttpRequest {
         String keyStoreType = KeyStore.getDefaultType();
         KeyStore keyStore = KeyStore.getInstance(keyStoreType);
         keyStore.load(null, null);
-
-        for (int i = 0; i < PINNED_CERTS.size(); i++) {
-          keyStore.setCertificateEntry("CA" + i, PINNED_CERTS.get(i));
+        if(PINNED_CERTS!=null) {
+          for (int i = 0; i < PINNED_CERTS.size(); i++) {
+            keyStore.setCertificateEntry("CA" + i, PINNED_CERTS.get(i));
+          }
         }
         return keyStore;
     }
 
-    public static void setX509ClientAuthentication(byte[] pkcs12Container, String password) throws GeneralSecurityException, IOException{
-        KeyManagerFactory kmf=null;
-        if(pkcs12Container != null){
-            KeyStore keystore = KeyStore.getInstance("PKCS12");
-            ByteArrayInputStream bis = new ByteArrayInputStream(pkcs12Container);
-            keystore.load(bis, password.toCharArray());
-            kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(keystore,password.toCharArray());
-        }
-
+    public static void setX509ClientAuthentication(byte[] pkcs12Container, String password) throws GeneralSecurityException, IOException {
+      KeyManagerFactory kmf = null;
+      if (pkcs12Container != null) {
+        KeyStore keystore = KeyStore.getInstance("PKCS12");
+        ByteArrayInputStream bis = new ByteArrayInputStream(pkcs12Container);
+        keystore.load(bis, password.toCharArray());
+        kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(keystore, password.toCharArray());
+      }
+      TrustManagerFactory tmf =null;
+      if (PINNED_CERTS != null) {
 
         KeyStore keyStoreForPinnedCertificates = getKeyStoreForPinnedCertificates();
 
         // Create a TrustManager that trusts the CAs in our KeyStore
         String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+         tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
         tmf.init(keyStoreForPinnedCertificates);
+      }
         KeyManager[] keyManagers= kmf!=null? kmf.getKeyManagers() : null;
+        TrustManager[] trustManagers= tmf!=null? tmf.getTrustManagers() :  new TrustManager[] { new X509TrustManager() {
+
+        public X509Certificate[] getAcceptedIssuers() {
+          return new X509Certificate[0];
+        }
+
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {
+          // Intentionally left blank
+        }
+
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {
+          // Intentionally left blank
+        }
+      } };;
         // Create an SSLContext that uses our TrustManager
         SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(keyManagers, tmf.getTrustManagers(), null);
+        sslContext.init(keyManagers, trustManagers, null);
 
         if (android.os.Build.VERSION.SDK_INT < 20) {
             PINNED_FACTORY = new TLSSocketFactory(sslContext);
