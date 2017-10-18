@@ -13,10 +13,24 @@
 
 @implementation CordovaHttpPlugin {
     AFSecurityPolicy *securityPolicy;
+    NSURLCredential *x509Credentials;
+    NSURLSessionAuthChallengeDisposition (^authenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * _Nullable __autoreleasing * _Nullable credential);
+   
 }
 
 - (void)pluginInitialize {
     securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+    
+    authenticationChallengeBlock= ^NSURLSessionAuthChallengeDisposition(NSURLSession * _Nonnull session, NSURLSessionTask * _Nonnull task, NSURLAuthenticationChallenge * _Nonnull challenge, NSURLCredential *__autoreleasing  _Nullable * _Nullable credential)  {
+        
+        if ([[challenge protectionSpace] authenticationMethod] == NSURLAuthenticationMethodClientCertificate) {
+            *credential = x509Credentials;
+            return NSURLSessionAuthChallengeUseCredential;
+        } else {
+            return NSURLSessionAuthChallengePerformDefaultHandling;
+        }
+    };
+    
 }
 
 - (void)setRequestHeaders:(NSDictionary*)headers forManager:(AFHTTPSessionManager*)manager {
@@ -28,7 +42,7 @@
     } else {
         manager.requestSerializer = [AFHTTPRequestSerializer serializer];
     }
-
+    
     [manager.requestSerializer.HTTPRequestHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         [manager.requestSerializer setValue:obj forHTTPHeaderField:key];
     }];
@@ -57,7 +71,40 @@
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-
+- (void)setX509AuthClientCredentials:(CDVInvokedUrlCommand*)command {
+    NSData *pkcs12Container = [command.arguments objectAtIndex:0];
+    NSString *password = [command.arguments objectAtIndex:1];
+    CFStringRef passwordRef = (__bridge CFStringRef) password;
+    const void *keys[] = { kSecImportExportPassphrase };
+    const void *values[] = { passwordRef };
+    CFDictionaryRef optionsDictionary = CFDictionaryCreate(NULL, keys, values, 1, NULL, NULL);
+    CFArrayRef p12Items;
+    
+    OSStatus result = SecPKCS12Import((__bridge CFDataRef)pkcs12Container, optionsDictionary, &p12Items);
+    
+    if(result == noErr) {
+        CFDictionaryRef identityDict = CFArrayGetValueAtIndex(p12Items, 0);
+        SecIdentityRef identityApp =(SecIdentityRef)CFDictionaryGetValue(identityDict,kSecImportItemIdentity);
+        
+        SecCertificateRef certRef;
+        SecIdentityCopyCertificate(identityApp, &certRef);
+        
+        SecCertificateRef certArray[1] = { certRef };
+        CFArrayRef clientCerts = CFArrayCreate(NULL, (void *)certArray, 1, NULL);
+        CFRelease(certRef);
+        
+        x509Credentials = [NSURLCredential credentialWithIdentity:identityApp certificates:(__bridge NSArray *)clientCerts persistence:NSURLCredentialPersistencePermanent];
+        CFRelease(clientCerts);
+    }
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+- (void)resetX509AuthClientCredentials:(CDVInvokedUrlCommand*)command {
+    x509Credentials = nil;
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 - (void)acceptAllCerts:(CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
     bool allow = [[command.arguments objectAtIndex:0] boolValue];
@@ -81,11 +128,13 @@
 - (void)post:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
     [self setRequestHeaders: headers forManager: manager];
-   
+    
     CordovaHttpPlugin* __weak weakSelf = self;
     manager.responseSerializer = [TextResponseSerializer serializer];
     [manager POST:url parameters:parameters progress:nil success:^(NSURLSessionTask *task, id responseObject) {
@@ -107,6 +156,8 @@
 - (void)postJson:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0];
     NSData *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
@@ -135,12 +186,14 @@
 - (void)put:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0]; NSLog(@"URL"); NSLog(@"%@", url);
     NSDictionary *parameters = [command.arguments objectAtIndex:1]; NSLog(@"parameters"); NSLog(@"%@", parameters);
     NSDictionary *headers = [command.arguments objectAtIndex:2]; NSLog(@"headers"); NSLog(@"%@", headers);
     [headers setValue:@"application/json" forKey:@"Content-Type"];
     [self setRequestHeaders: headers forManager: manager];
-
+    
     CordovaHttpPlugin* __weak weakSelf = self;
     manager.responseSerializer = [TextResponseSerializer serializer];
     [manager PUT:url parameters:parameters success:^(NSURLSessionTask *task, id responseObject) {
@@ -164,6 +217,8 @@
 - (void)get:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
@@ -191,13 +246,15 @@
 - (void)delete:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
     [self setRequestHeaders: headers forManager: manager];
-   
+    
     CordovaHttpPlugin* __weak weakSelf = self;
-
+    
     manager.responseSerializer = [TextResponseSerializer serializer];
     [manager DELETE:url parameters:parameters success:^(NSURLSessionTask *task, id responseObject) {
         NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
@@ -219,6 +276,8 @@
 - (void)head:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
@@ -246,6 +305,8 @@
 - (void)uploadFile:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
@@ -288,11 +349,13 @@
 - (void)downloadFile:(CDVInvokedUrlCommand*)command {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.securityPolicy = securityPolicy;
+    [manager setTaskDidReceiveAuthenticationChallengeBlock:authenticationChallengeBlock];
+    
     NSString *url = [command.arguments objectAtIndex:0];
     NSDictionary *parameters = [command.arguments objectAtIndex:1];
     NSDictionary *headers = [command.arguments objectAtIndex:2];
     NSString *filePath = [command.arguments objectAtIndex: 3];
-   
+    
     [self setRequestHeaders: headers forManager: manager];
     
     if ([filePath hasPrefix:@"file://"]) {
@@ -323,7 +386,7 @@
          *
          * Modified by Andrew Stephan for Sync OnSet
          *
-        */
+         */
         // Download response is okay; begin streaming output to file
         NSString* parentPath = [filePath stringByDeletingLastPathComponent];
         
@@ -350,7 +413,7 @@
             [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             return;
         }
-   
+        
         id filePlugin = [self.commandDelegate getCommandInstance:@"File"];
         NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
         [self setResults: dictionary withTask: task];
