@@ -88,6 +88,25 @@ Whether or not to validate the domain name in the certificate.  This defaults to
         console.log('error :(');
     });
     
+### setX509AuthClientCredentials
+Use certificate and private key for X.509 client authentication during TLS handshake (if requested by server)
+The PKCS#12 container is expected to be an ArrayBuffer, and the password as string 
+
+     cordovaHTTP2.setX509AuthClientCredentials(pkcs10Container, passwordForPkcs12Container, function() {
+        console.log('success!');
+    }, function() {
+        console.log('error :(');
+    });
+    
+### resetX509AuthClientCredentials
+Removes the PKCS#12 Container for client authentication
+
+     cordovaHTTP2.resetX509AuthClientCredentials(function() {
+        console.log('success!');
+    }, function() {
+        console.log('error :(');
+    });
+    
 ### post<a name="post"></a>
 Execute a POST request.  Takes a URL, parameters, and headers.
 
