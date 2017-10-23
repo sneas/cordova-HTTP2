@@ -69,3 +69,5 @@ module.exports = {
         if (failure) failure();
     }
 };
+
+require("cordova/exec/proxy").add("CordovaHttpPlugin", module.exports);
