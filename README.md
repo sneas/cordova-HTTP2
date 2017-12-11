@@ -1,3 +1,5 @@
+**This project is not supported in favour to https://github.com/silkimen/cordova-plugin-advanced-http**
+
 cordovaHTTP With postJSON, PUT and DELETE methods.
 ==================
 
